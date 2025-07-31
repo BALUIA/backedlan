@@ -31,51 +31,52 @@ public class SecurityConfig {
     @Autowired
     private UserService userService;
 
-
     @Bean
     protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login").permitAll()
-                        .requestMatchers("/auth/register").hasAuthority("ROLE_ADMIN") // Solo admin puede registrar
-                        .requestMatchers("/api/turnos/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                        .requestMatchers("/api/products/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                        .requestMatchers("/api/inventory/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                        .requestMatchers("/api/caja/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                        .requestMatchers("/api/tasks/all").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/api/tasks").hasAuthority("ROLE_ADMIN")
-                        .requestMatchers("/api/tasks/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                        .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtEntryPoint()))
-                .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/login").permitAll()
+                .requestMatchers("/auth/register").hasAuthority("ROLE_ADMIN") // Solo admin puede registrar
+                .requestMatchers("/api/turnos/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .requestMatchers("/api/products/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .requestMatchers("/api/inventory/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .requestMatchers("/api/caja/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .requestMatchers("/api/tasks/all").hasAuthority("ROLE_ADMIN")
+                .requestMatchers("/api/tasks").hasAuthority("ROLE_ADMIN")
+                .requestMatchers("/api/tasks/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .anyRequest().authenticated())
+            .httpBasic(Customizer.withDefaults())
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtEntryPoint()))
+            .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtTokenFilter(){
+    public JwtAuthenticationFilter jwtTokenFilter() {
         return new JwtAuthenticationFilter(jwtUtil, userService);
     }
 
     @Bean
-    public JwtEntryPoint jwtEntryPoint(){
+    public JwtEntryPoint jwtEntryPoint() {
         return new JwtEntryPoint();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource(){
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        // 🚨 Solo especifica los dominios permitidos cuando usas credentials = true
+        configuration.setAllowedOrigins(List.of("https://suitegamingesp.netlify.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(true); // Necesario si usas cookies o Authorization
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
