@@ -5,7 +5,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Etapa 2: Crear la imagen final con solo el JRE y el JAR
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/security-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
