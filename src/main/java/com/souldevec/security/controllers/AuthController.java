@@ -3,6 +3,8 @@ package com.souldevec.security.controllers;
 import com.souldevec.security.dtos.LoginUserDto;
 import com.souldevec.security.dtos.NewUserDto;
 import com.souldevec.security.services.AuthService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class AuthController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     private final AuthService authService;
 
     @Autowired
@@ -26,6 +29,7 @@ public class AuthController {
 
     @GetMapping("/")
     public ResponseEntity<Map<String, String>> healthCheck() {
+        logger.info("Health check endpoint accessed.");
         Map<String, String> response = new HashMap<>();
         response.put("status", "UP");
         response.put("message", "Welcome to the API!");
@@ -34,13 +38,16 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginUserDto loginUserDto, BindingResult bindingResult){
+        logger.info("Attempting to login user: {}", loginUserDto.getUserName());
         if (bindingResult.hasErrors()){
             return ResponseEntity.badRequest().body("Revise sus credenciales");
         }
         try {
             String jwt = authService.authenticate(loginUserDto.getUserName(), loginUserDto.getPassword());
+            logger.info("User '{}' logged in successfully.", loginUserDto.getUserName());
             return ResponseEntity.ok(jwt);
         } catch (Exception e){
+            logger.error("Login failed for user: {}", loginUserDto.getUserName(), e);
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
