@@ -36,6 +36,7 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/").permitAll()
                 .requestMatchers("/auth/login").permitAll()
                 .requestMatchers("/auth/register").hasAuthority("ROLE_ADMIN") // Solo admin puede registrar
                 .requestMatchers("/api/turnos/**").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
