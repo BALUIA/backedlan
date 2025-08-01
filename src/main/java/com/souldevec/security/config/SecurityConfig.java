@@ -73,7 +73,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // 🚨 Solo especifica los dominios permitidos cuando usas credentials = true
-        configuration.setAllowedOrigins(List.of("https://suitegamingesp.netlify.app"));
+        configuration.setAllowedOrigins(List.of("https://suitegamingesp.netlify.app", "http://localhost:5173", "http://127.0.0.1:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true); // Necesario si usas cookies o Authorization
