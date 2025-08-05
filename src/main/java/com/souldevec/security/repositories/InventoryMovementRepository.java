@@ -12,4 +12,5 @@ import java.util.List;
 public interface InventoryMovementRepository extends JpaRepository<InventoryMovement, Long> {
     List<InventoryMovement> findByTurno(Turno turno);
     List<InventoryMovement> findByProductOrderByTimestampDesc(Product product);
+    List<InventoryMovement> findByProduct(Product product);
 }

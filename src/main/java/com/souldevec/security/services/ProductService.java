@@ -8,11 +8,13 @@ import com.souldevec.security.repositories.InventoryMovementRepository;
 import com.souldevec.security.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ProductService {
 
     @Autowired
@@ -27,6 +29,29 @@ public class ProductService {
 
     public Product save(Product product) {
         return productRepository.save(product);
+    }
+
+    public Product update(Long id, Product productDetails) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        product.setName(productDetails.getName());
+        product.setDescription(productDetails.getDescription());
+        product.setPurchasePrice(productDetails.getPurchasePrice());
+        product.setSellingPrice(productDetails.getSellingPrice());
+        product.setStock(productDetails.getStock());
+
+        return productRepository.save(product);
+    }
+
+    public void deleteById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        List<InventoryMovement> movements = inventoryMovementRepository.findByProduct(product);
+        inventoryMovementRepository.deleteAll(movements);
+
+        productRepository.deleteById(id);
     }
 
     public List<ProductHistoryDto> getProductHistory() {
